@@ -13,7 +13,7 @@ RUN \
 
 RUN \
     apt-get update && \
-    apt-get install net-tools iputils-ping mtr && \
+    apt-get install iptables net-tools iputils-ping mtr && \
     apt-get autoremove && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/*
