@@ -24,15 +24,6 @@ RUN \
     apt-get update && \
     apt-get install iptables openvpn procps && \
     addgroup --system vpn && \
-    echo '#!/usr/bin/env bash' >/sbin/resolvconf && \
-    echo 'conf=/etc/resolv.conf' >>/sbin/resolvconf && \
-    echo '[[ -e $conf.orig ]] || cp -p $conf $conf.orig' >>/sbin/resolvconf && \
-    echo 'if [[ "${1:-""}" == "-a" ]]; then' >>/sbin/resolvconf && \
-    echo '    cat >${conf}' >>/sbin/resolvconf && \
-    echo 'elif [[ "${1:-""}" == "-d" ]]; then' >>/sbin/resolvconf && \
-    echo '    cat $conf.orig >$conf' >>/sbin/resolvconf && \
-    echo 'fi' >> /sbin/resolvconf && \
-    chmod +x /sbin/resolvconf && \
 #CLEANUP
     apt-get autoremove && \
     apt-get clean && \
@@ -40,4 +31,4 @@ RUN \
 
 COPY rootfs /
 
-CMD ["supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
+CMD ["/run"]
