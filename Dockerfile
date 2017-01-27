@@ -12,6 +12,3 @@ RUN \
     rm -rf /var/lib/apt/lists/*
 
 COPY rootfs /
-
-CMD ["/run"]
-#
