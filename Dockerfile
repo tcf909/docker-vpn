@@ -11,4 +11,11 @@ RUN \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+RUN \
+    apt-get update && \
+    apt-get install net-tools iputils-ping mtr && \
+    apt-get autoremove && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/*
+
 COPY rootfs /
