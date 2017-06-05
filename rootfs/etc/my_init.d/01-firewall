@@ -21,6 +21,8 @@ ip route add default via ${DEFAULT_GW} dev ${DEFAULT_DEV} src ${DEFAULT_SOURCE} 
 ip route add ${DEFAULT_NET} dev ${DEFAULT_DEV} src ${DEFAULT_NET_SOURCE} table ${DEFAULT_RTABLE}
 ip rule add fwmark 1 table ${DEFAULT_RTABLE}
 
+
+
 #MANGLE - PRE
 iptables -t mangle -A PREROUTING -j CONNMARK --restore-mark
 iptables -t mangle -A PREROUTING -m mark ! --mark 0 -j RETURN
@@ -32,8 +34,10 @@ iptables -t mangle -A POSTROUTING -j CONNMARK --save-mark
 iptables -t nat -A POSTROUTING -o ${DEFAULT_DEV} -j SNAT --to-source ${DEFAULT_SOURCE}
 
 #VPN
+iptables -N VPN
 iptables -A VPN -o tun+ -j ACCEPT
 iptables -A VPN -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A VPN -j DROP
 
 #INPUT
 iptables -A INPUT -i lo -j ACCEPT
