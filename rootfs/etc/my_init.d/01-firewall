@@ -14,13 +14,12 @@ DEFAULT_NET="$(ip route | grep "dev ${DEFAULT_DEV}" | awk -v device="${DEFAULT_D
 DEFAULT_NET_SOURCE="$(ip route | grep "dev ${DEFAULT_DEV}" | awk -v device="${DEFAULT_DEV}" '$3 == device {print $9}')"
 
 #loosen up rp_filter
-for dev in /proc/sys/net/ipv4/conf/*; do echo 2 > ${dev}/rp_filter; done
+for dev in /proc/sys/net/ipv4/conf/*; do echo 0 > ${dev}/rp_filter; done
 
 echo 200 ${DEFAULT_RTABLE} >> /etc/iproute2/rt_tables
 ip route add default via ${DEFAULT_GW} dev ${DEFAULT_DEV} src ${DEFAULT_SOURCE} table ${DEFAULT_RTABLE}
 ip route add ${DEFAULT_NET} dev ${DEFAULT_DEV} src ${DEFAULT_NET_SOURCE} table ${DEFAULT_RTABLE}
 ip rule add fwmark 1 table ${DEFAULT_RTABLE}
-
 
 
 #MANGLE - PRE
