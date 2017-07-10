@@ -86,4 +86,4 @@ iptables -A OUTPUT ! -o tun+ -p tcp -m tcp --sport 8443 -m conntrack --ctstate E
 #RSYNC - START
 iptables -A OUTPUT ! -o tun+ -p tcp -m tcp --dport 873 -j ACCEPT
 #RSYNC - STOP
-iptables -A OUTPUT -j LOG --log-prefix "OUTPUT: DROPPING: "
+iptables -A OUTPUT -j LOG --log-prefix "OUTPUT: DROPPING:
