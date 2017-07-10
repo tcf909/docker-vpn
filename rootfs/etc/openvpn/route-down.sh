@@ -7,8 +7,8 @@ VPN_DEVICE="${dev}"
 VPN_GW="${route_net_gateway}"
 VPN_DST="${trusted_ip}"
 
-(ip route replace default via ${VPN_GW})
+ip route replace default via ${VPN_GW}
 
-(ip route del ${VPN_DST} via ${VPN_GW})
+ip route del ${VPN_DST} via ${VPN_GW}
 
 exit 0

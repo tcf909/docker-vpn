@@ -22,32 +22,54 @@ ip route add ${DEFAULT_NET} dev ${DEFAULT_DEV} src ${DEFAULT_NET_SOURCE} table $
 ip rule add fwmark 1 table ${DEFAULT_RTABLE}
 
 
+#
 #MANGLE - PRE
+#
 iptables -t mangle -A PREROUTING -j CONNMARK --restore-mark
 iptables -t mangle -A PREROUTING -m mark ! --mark 0 -j RETURN
+#WEBUI - START
+iptables -t mangle -A PREROUTING -p tcp -m tcp --dport 8443 -j MARK --set-mark 1
+#WEBUI - STOP
 
+#
+# MANGLE - OUTPUT
+#
+#RSYNC - START
+iptables -t mangle -A OUTPUT -p tcp -m tcp --dport 873 -j MARK --set-mark 1
+#RSYNC - STOP
+
+#
 #MANGLE - POST
+#
 iptables -t mangle -A POSTROUTING -j CONNMARK --save-mark
 
+#
 #NAT - POST
+#
 iptables -t nat -A POSTROUTING -o ${DEFAULT_DEV} -j SNAT --to-source ${DEFAULT_SOURCE}
 
+#
 #VPN
-iptables -N VPN
-iptables -A VPN -o tun+ -j ACCEPT
-iptables -A VPN -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-iptables -A VPN -j DROP
+#
+iptables -N VPN-IN
+iptables -A VPN-IN -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A VPN-IN -j LOG --log-prefix "VPN-IN: DROPPING: "
+iptables -A VPN-IN -j DROP
 
+#
 #INPUT
+#
 iptables -A INPUT -i lo -j ACCEPT
-#iptables -A INPUT -i tun+ -j VPN
+iptables -A INPUT -i tun+ -j VPN
 iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-#iptables -A INPUT -j LOG --log-prefix "INPUT: DROPPING: "
+#WEBUI - START
+iptables -A INPUT -i eth0 -p tcp -m tcp --dport 8443 -j ACCEPT
+#WEBUI - STOP
+iptables -A INPUT -j LOG --log-prefix "INPUT: DROPPING: "
 
 #OUTPUT
 iptables -A OUTPUT -o lo -j ACCEPT
-iptables -A OUTPUT -o tun+ -j VPN
-#OUTPUT RULES
+iptables -A OUTPUT -o tun+ -j ACCEPT
 iptables -A OUTPUT -d 209.222.18.218/32 -p icmp -j ACCEPT
 iptables -A OUTPUT -d 209.222.18.218/32 -p udp -m udp --dport 53 -j ACCEPT
 iptables -A OUTPUT -d 209.222.18.218/32 -p tcp -m tcp --dport 53 -j ACCEPT
@@ -58,12 +80,10 @@ iptables -A OUTPUT -p tcp -m owner --cmd-owner openvpn -j ACCEPT 2>/dev/null &&
 iptables -A OUTPUT -p udp -m owner --cmd-owner openvpn -j ACCEPT || {
     iptables -A OUTPUT -p tcp -m tcp --dport ${VPN_PORT} -j ACCEPT
     iptables -A OUTPUT -p udp -m udp --dport ${VPN_PORT} -j ACCEPT; }
-
-#WebUi - Inbound
-iptables -t mangle -A PREROUTING -p tcp -m tcp --dport 8443 -j MARK --set-mark 1
-iptables -A INPUT -i eth0 -p tcp -m tcp --dport 8443 -j ACCEPT
+#WEBUI - START
 iptables -A OUTPUT ! -o tun+ -p tcp -m tcp --sport 8443 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-
-#RSYNC - Outbound
-iptables -t mangle -A OUTPUT -p tcp -m tcp --dport 873 -j MARK --set-mark 1
+#WEBUI - STOP
+#RSYNC - START
 iptables -A OUTPUT ! -o tun+ -p tcp -m tcp --dport 873 -j ACCEPT
+#RSYNC - STOP
+iptables -A OUTPUT -j LOG --log-prefix "OUTPUT: DROPPING: "
