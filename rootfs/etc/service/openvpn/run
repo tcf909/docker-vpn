@@ -8,12 +8,11 @@ COUNT=0
 while true; do
 
     VPN_SERVER="$(eval echo "\$OPENVPN_${COUNT}_SERVER")"
+    VPN_OPTIONS="$(eval echo "\$OPENVPN_${COUNT}_OPTIONS")"
 
     if [[ -z "${VPN_SERVER}" ]]; then
 
         [[ "${COUNT}" == "0" ]] && exit 1
-
-        jobs
 
         wait -n
 
@@ -25,7 +24,7 @@ while true; do
 
     else
 
-        exec sg vpn -c "openvpn --config /etc/openvpn/vpn.conf --remote ${VPN_SERVER}" &
+        exec sg vpn -c "openvpn --config /etc/openvpn/vpn.conf --remote ${VPN_SERVER} ${VPN_OPTIONS}" &
 
         sleep 10
 
