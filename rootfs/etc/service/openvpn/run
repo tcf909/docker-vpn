@@ -24,7 +24,7 @@ while true; do
 
     else
 
-        exec sg vpn -c "openvpn --config /etc/openvpn/vpn.conf --remote ${VPN_SERVER} ${VPN_OPTIONS}" &
+        exec sg vpn -c "openvpn --config /etc/openvpn/vpn.conf ${VPN_OPTIONS} --remote ${VPN_SERVER}" &
 
         sleep 10
 
