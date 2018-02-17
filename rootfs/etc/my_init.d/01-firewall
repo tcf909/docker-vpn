@@ -38,6 +38,10 @@ iptables -t mangle -A PREROUTING -p tcp -m tcp --dport 8080 -j MARK --set-mark 1
 iptables -t mangle -A OUTPUT -p tcp -m tcp --dport 873 -j MARK --set-mark 1
 #RSYNC - STOP
 
+#WEBUI - START
+iptables -t mangle -A OUTPUT -p tcp -m tcp --sport 8080 -j MARK --set-mark 1
+#WEBUI - STOP
+
 #
 #MANGLE - POST
 #
